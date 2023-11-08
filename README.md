@@ -14,4 +14,6 @@ To run the server, run:
 npm start
 ```
 
-This project leverages the mega-awesome [oas-tools](https://github.com/isa-group/oas-tools) middleware which does most all the work.
+## Copyright notice
+
+Please refer to  [Governify License](https://docs.governify.io/about/license/) to get Copyright and License details.
