@@ -52,6 +52,48 @@ paths:
               $ref: '#/components/schemas/task'
         description: Task to be created
         required: true
+  /api/v1/tags:
+    get:
+      summary: Get tags and associated tasks
+      operationId: getTags
+      x-router-controller: apiv1tagsController
+      responses:
+        '200':
+          description: A dictionary of tags and tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/task'
+  /api/v1/tags/modify:
+    post:
+      summary: Modify tags for tasks
+      operationId: modifyTags
+      x-router-controller: apiv1tagsController
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                taskIds:
+                  type: array
+                  items:
+                    type: string
+                operation:
+                  type: string
+                  enum: [tag, untag]
+      responses:
+        '200':
+          description: Tags modified successfully
   '/api/v1/tasks/{id}/status':
     get:
       description: Returns a task status by id
@@ -283,6 +325,10 @@ components:
         end:
           type: string
           properties: {}
+        tags:
+          type: array
+          items:
+            type: string
       required:
         - script
         - config

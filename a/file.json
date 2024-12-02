@@ -1,0 +1,5 @@
+[{
+    "tags": ["tag1", "tag2", "tag3"],
+    "taksIds": [1, 2, 3],
+    "operation": "untag"
+}]

@@ -68,7 +68,7 @@ async function programNextTasks () {
       });
     }
   });
-  logger.info(programmedTasks);
+  logger.info('Programmed tasks: ', JSON.stringify(programmedTasks));
 }
 
 // Run a specific tasktask

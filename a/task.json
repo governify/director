@@ -1,0 +1,23 @@
+{
+    "id": "class01-GH-motero2k_Bluejay-test-TPA-23-24-test-email-v01",
+    "script": "http://localhost:5800/api/v1/public/director/class01-GH-motero2k_Bluejay-test-TPA-23-24-test-email-v01.js",
+    "running": true,
+    "config": {
+      "agreementId": "class01-GH-motero2k_Bluejay-test-TPA-23-24-test-email-v01"
+    },
+    "tags": {
+      "simple": [
+        "tag1",
+        "tag2",
+        "tag3"
+      ],
+      "keyValue": {
+        "type": "email",
+        "courseId": "class01",
+        "agreementId": "GH-motero2k_Bluejay-test-TPA-23-24-test-email-v01"
+      }
+    },
+    "init": "2024-11-19T12:00:23.510Z",
+    "end": "2025-06-17T12:00:23.510Z",
+    "interval": 3600000
+  }

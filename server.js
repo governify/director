@@ -28,7 +28,7 @@ const deploy = (env, commonsMiddleware) => {
 
       const optionsObject = {
         controllers: path.join(__dirname, './controllers'),
-        loglevel: env === 'test' ? 'error' : 'info',
+        loglevel: 'debug',
         strict: false,
         router: true,
         validator: true
