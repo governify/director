@@ -42,7 +42,7 @@
     "schedule": ["every month"]
   },
   "assignees": [""],
-  "reviewers": ["alvarobernal2412"],
+  "reviewers": ["JaviFdez7"],
   "extends": ["mergeConfidence:age-confidence-badges"],
   "baseBranches": ["main"],
   "forkProcessing": "enabled"
