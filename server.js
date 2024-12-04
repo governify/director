@@ -23,8 +23,8 @@ const deploy = (env, commonsMiddleware) => {
       const jsyaml = require('js-yaml');
       const serverPort = process.env.PORT || 5800;
 
-      const spec = fs.readFileSync(path.join(__dirname, '/api/oas-doc.yaml'), 'utf8');
-      const oasDoc = jsyaml.safeLoad(spec);
+      const spec = fs.readFileSync(path.join(__dirname, '/api/oas-file.yaml'), 'utf8');
+      const oasDoc = jsyaml.load(spec);
 
       const optionsObject = {
         controllers: path.join(__dirname, './controllers'),

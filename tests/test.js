@@ -7,7 +7,7 @@ const governify = require('governify-commons');
 const server = require('../server');
 const nockController = require('./nockController');
 
-const serverUrl = "http://localhost:5800";
+const serverUrl = 'http://localhost:5800';
 
 describe('Testing', function () {
   before((done) => {
@@ -129,7 +129,7 @@ function apiRestPositivePostGetDeleteTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -164,7 +164,7 @@ function apiRestPositivePostGetDeleteTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -194,7 +194,7 @@ function apiRestPositivePutTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.bodyPOST,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -216,7 +216,7 @@ function apiRestPositivePutTestRequest() {
             url: serverUrl + '/api/v1/tasks/' + testRequest.bodyPUT.id,
             data: testRequest.bodyPUT,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -250,7 +250,7 @@ function apiRestPositivePutTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.bodyPUT.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -280,7 +280,7 @@ function apiRestPositiveGetStatusAndBadgeTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -297,7 +297,7 @@ function apiRestPositiveGetStatusAndBadgeTaskTestRequest() {
 
       it('should respond with 200 OK on GET Task badge on (' + testRequest.name + ')', function (done) {
         try {
-          governify.httpClient.get(serverUrl + '/api/v1/tasks/' + testRequest.body.id + "/badge").then(response => {
+          governify.httpClient.get(serverUrl + '/api/v1/tasks/' + testRequest.body.id + '/badge').then(response => {
             assert.strictEqual(response.status, 200);
             assert.notStrictEqual(response.data, undefined);
             done();
@@ -312,7 +312,7 @@ function apiRestPositiveGetStatusAndBadgeTaskTestRequest() {
       
       it('should respond with 200 OK on GET Task status on (' + testRequest.name + ') and response data should be correct', function (done) {
         try {
-          governify.httpClient.get(serverUrl + '/api/v1/tasks/' + testRequest.body.id + "/status").then(response => {
+          governify.httpClient.get(serverUrl + '/api/v1/tasks/' + testRequest.body.id + '/status').then(response => {
             assert.strictEqual(response.status, 200);
             assert.strictEqual(JSON.stringify(response.data), JSON.stringify(testRequest.response))
             done();
@@ -332,7 +332,7 @@ function apiRestPositiveGetStatusAndBadgeTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -361,7 +361,7 @@ function apiRestPositiveStatusActionTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -382,7 +382,7 @@ function apiRestPositiveStatusActionTaskTestRequest() {
             method: 'POST',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id + '/status/' + testRequest.type,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -403,7 +403,7 @@ function apiRestPositiveStatusActionTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -433,7 +433,7 @@ function apiRestPositiveRunTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -455,7 +455,7 @@ function apiRestPositiveRunTaskTestRequest() {
             method: 'POST',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id + '/run',
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -463,11 +463,11 @@ function apiRestPositiveRunTaskTestRequest() {
             assert.strictEqual(JSON.stringify(response.data), JSON.stringify(testRequest.body.config));
             done();
           }).catch(err => {
-            console.log("there" ,response)
+            console.log('there' ,response)
             assert.fail('Error on request');
           });
         } catch (err) {
-          console.log("there" ,response)
+          console.log('there' ,response)
           assert.fail('Error when sending request');
         }
       });
@@ -481,7 +481,7 @@ function apiRestPositiveRunTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -510,7 +510,7 @@ function apiRestPositiveTestTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks/test',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -542,7 +542,7 @@ function apiRestNegativePostTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -564,13 +564,13 @@ function apiRestNegativePostTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 400);
-            assert.strictEqual(err.response.data.message, "Task already exists");
+            assert.strictEqual(err.response.data.message, 'Task already exists');
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),true);
             done();
           });
@@ -585,7 +585,7 @@ function apiRestNegativePostTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -613,7 +613,7 @@ function apiRestNegativeGetTaskTestRequest() {
           governify.httpClient.get(serverUrl + '/api/v1/task/' + testRequest.body.id).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.statusText, "Not Found");
+            assert.strictEqual(err.response.statusText, 'Not Found');
             done();
           });
         } catch (err) {
@@ -634,7 +634,7 @@ function apiRestNegativeGetTaskStatusAndBadgeTestRequest() {
           governify.httpClient.get(serverUrl + '/api/v1/task/' + testRequest.body.id).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.statusText, "Not Found");
+            assert.strictEqual(err.response.statusText, 'Not Found');
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),false);
             done();
           });
@@ -649,7 +649,7 @@ function apiRestNegativeGetTaskStatusAndBadgeTestRequest() {
           governify.httpClient.get(serverUrl + '/api/v1/task/' + testRequest.body.id).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.statusText, "Not Found");
+            assert.strictEqual(err.response.statusText, 'Not Found');
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),false);
             done();
           });
@@ -672,13 +672,13 @@ function apiRestNegativePutTaskTestRequest() {
             url: serverUrl + '/api/v1/task/' + testRequest.body.id,
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.statusText, "Not Found");
+            assert.strictEqual(err.response.statusText, 'Not Found');
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),false);
             done();
           });
@@ -700,7 +700,7 @@ function apiRestNegativeDeleteTaskTestRequest() {
           governify.httpClient.get(serverUrl + '/api/v1/task/' + testRequest.body.id).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.statusText, "Not Found");
+            assert.strictEqual(err.response.statusText, 'Not Found');
             done();
           });
         } catch (err) {
@@ -722,7 +722,7 @@ function apiRestNegativeStatusActionTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -737,7 +737,7 @@ function apiRestNegativeStatusActionTaskTestRequest() {
         }
       });
 
-      if(testRequest.type === "notFound"){
+      if(testRequest.type === 'notFound'){
         it('should respond with 404 Not Found on POST (' + testRequest.name + ')', function (done) {
           try {
             const options = {
@@ -745,14 +745,14 @@ function apiRestNegativeStatusActionTaskTestRequest() {
               url: serverUrl + '/api/v1/tasks/' + testRequest.id + '/status/' + testRequest.type,
               data: {},
               headers: {
-                  'User-Agent': 'request'
+                'User-Agent': 'request'
               }
             }
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.id + '.json'),false);
             governify.httpClient.request(options).then(response => {
             }).catch(err => {
               assert.strictEqual(err.response.status, 404);
-              assert.strictEqual(err.response.data.message, "Not Found");
+              assert.strictEqual(err.response.data.message, 'Not Found');
               done();
             });
           } catch (err) {
@@ -767,7 +767,7 @@ function apiRestNegativeStatusActionTaskTestRequest() {
               url: serverUrl + '/api/v1/tasks/' + testRequest.id + '/status/' + testRequest.type,
               data: {},
               headers: {
-                  'User-Agent': 'request'
+                'User-Agent': 'request'
               }
             }
             assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),true);
@@ -789,7 +789,7 @@ function apiRestNegativeStatusActionTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -817,14 +817,14 @@ function apiRestNegativeRunTaskTestRequest() {
             method: 'POST',
             url: serverUrl + '/api/v1/tasks/' + testRequest.id + '/run',
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           assert.strictEqual(fs.existsSync('./tasks/' + testRequest.body.id + '.json'),false);
           governify.httpClient.request(options).then(response => {
           }).catch(err => {
             assert.strictEqual(err.response.status, 404);
-            assert.strictEqual(err.response.data.message, "Not Found");
+            assert.strictEqual(err.response.data.message, 'Not Found');
             done();
           });
         } catch (err) {
@@ -841,7 +841,7 @@ function apiRestNegativeRunTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -862,7 +862,7 @@ function apiRestNegativeRunTaskTestRequest() {
             method: 'POST',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id + '/run',
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -881,7 +881,7 @@ function apiRestNegativeRunTaskTestRequest() {
             method: 'DELETE',
             url: serverUrl + '/api/v1/tasks/' + testRequest.body.id,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
@@ -910,7 +910,7 @@ function apiRestNegativeTestTaskTestRequest() {
             url: serverUrl + '/api/v1/tasks/test',
             data: testRequest.body,
             headers: {
-                'User-Agent': 'request'
+              'User-Agent': 'request'
             }
           }
           governify.httpClient.request(options).then(response => {
