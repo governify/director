@@ -15,7 +15,7 @@ on:
       - labeled
 
 env:
-  REGISTRY_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/director
+  REGISTRY_IMAGE: governify/director
   GHCR_IMAGE: governify/director
   PR_ID: ${{ github.event.pull_request.number }}
   TAG: ${{ github.ref_name }}
