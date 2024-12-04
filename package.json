@@ -37,9 +37,9 @@
     "newrelic": "latest"
   },
   "devDependencies": {
-    "mocha": "^7.2.0",
-    "nock": "^13.1.0",
-    "nyc": "^15.0.0",
+    "mocha": "7.2.0",
+    "nock": "13.3.0",
+    "nyc": "15.1.0",
     "semistandard": "16.0.1"
   },
   "semistandard": {
