@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch --watch-path=./controllers --env-file=.env index.js",
+    "dev": "nodemon --env-file=.env index.js",
     "test": "mocha ./tests/test.js --timeout 20000 -s 20",
     "coverage": "nyc --reporter=lcov mocha ./tests/test.js --timeout 20000 -s 20",
     "cov": "nyc mocha ./tests/test.js --timeout 20000 -s 20",
@@ -46,6 +46,7 @@
     "globals": "15.13.0",
     "mocha": "11.0.1",
     "nock": "13.5.6",
+    "nodemon": "3.1.7",
     "nyc": "17.1.0"
   },
   "author": {
