@@ -44,6 +44,6 @@
   "assignees": [""],
   "reviewers": ["JaviFdez7"],
   "extends": ["mergeConfidence:age-confidence-badges"],
-  "baseBranches": ["main"],
+  "baseBranches": ["develop"],
   "forkProcessing": "enabled"
 }
