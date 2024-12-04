@@ -56,7 +56,7 @@ async function programNextTasks () {
       nextTaskDates.forEach(time => {
         const scheduledFunction = function () {
           if (task) {
-            delete programmedTasks[task.id][time];
+            delete programmedTasks[task.id]?.[time];
             runTask(task);
           } else {
             logger.info('Task canceled because it was deleted.');
