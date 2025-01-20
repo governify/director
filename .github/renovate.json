@@ -2,24 +2,57 @@
   "timezone": "Europe/Madrid",
   "packageRules": [
     {
-    "matchManagers": ["npm"],
-    "matchDepTypes": ["devDependencies"],
-    "groupName": "npm (development)"
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "groupName": "npm (development)",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ]
     },
     {
-    "matchManagers": ["npm"],
-    "matchDepTypes": ["dependencies"],
-    "groupName": "npm (runtime)"
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "groupName": "npm (runtime)",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ]
     },
     {
-    "matchManagers": ["github-actions"],
-    "separateMajorMinor": false,
-    "groupName": "ci"
+      "matchManagers": [
+        "github-actions"
+      ],
+      "separateMajorMinor": false,
+      "groupName": "ci",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ]
     },
     {
-    "matchUpdateTypes": ["lockFileMaintenance"],
-    "groupName": "lockfiles",
-    "dependencyDashboardApproval": true
+      "matchUpdateTypes": [
+        "lockFileMaintenance"
+      ],
+      "groupName": "lockfiles",
+      "dependencyDashboardApproval": true
     }
   ],
   "dependencyDashboard": true,
@@ -29,11 +62,22 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "groupName": "vulnerable",
-    "labels": ["🔒 Security", "📦 Dependencies"]
+    "labels": [
+      "🔒 Security",
+      "📦 Dependencies"
+    ]
   },
-  "ignoreDeps": ["npm", "node"],
-  "enabledManagers": ["npm", "github-actions"],
-  "labels": ["📦 Dependencies"],
+  "ignoreDeps": [
+    "npm",
+    "node"
+  ],
+  "enabledManagers": [
+    "npm",
+    "github-actions"
+  ],
+  "labels": [
+    "📦 Dependencies"
+  ],
   "rebaseWhen": "behind-base-branch",
   "rangeStrategy": "pin",
   "lockFileMaintenance": {
