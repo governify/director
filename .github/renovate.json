@@ -37,7 +37,6 @@
       "matchManagers": [
         "github-actions"
       ],
-      "separateMajorMinor": false,
       "groupName": "ci",
       "automerge": true,
       "automergeType": "pr",
@@ -83,11 +82,21 @@
   "lockFileMaintenance": {
     "enabled": true,
     "groupName": "lockfiles",
-    "schedule": ["every month"]
+    "schedule": [
+      "every month"
+    ]
   },
-  "assignees": [""],
-  "reviewers": ["JaviFdez7"],
-  "extends": ["mergeConfidence:age-confidence-badges"],
-  "baseBranches": ["develop"],
+  "assignees": [
+    ""
+  ],
+  "reviewers": [
+    "JaviFdez7"
+  ],
+  "extends": [
+    "mergeConfidence:age-confidence-badges"
+  ],
+  "baseBranches": [
+    "develop"
+  ],
   "forkProcessing": "enabled"
 }
