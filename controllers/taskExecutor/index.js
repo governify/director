@@ -54,10 +54,16 @@ async function programNextTasks () {
       }
 
       nextTaskDates.forEach(time => {
-        const scheduledFunction = function () {
+        const scheduledFunction = async function () {
           if (task) {
             delete programmedTasks[task.id]?.[time];
-            runTask(task);
+            logger.info(`Executing task: ${task.id} at ${new Date(time).toISOString()}`);
+            try {
+              await runTask(task);
+              logger.info(`Task ${task.id} completed successfully`);
+            } catch (error) {
+              logger.error(`Error executing task ${task.id}: ${error.message}`);
+            }
           } else {
             logger.info('Task canceled because it was deleted.');
           }
@@ -68,14 +74,12 @@ async function programNextTasks () {
       });
     }
   });
-  if(Object.keys(programmedTasks).length > 0){
-    logger.info(`Tasks: \n${JSON.stringify(programmedTasks)}`);
-  };
 }
 
 // Run a specific tasktask
 async function runTask (task) {
   try {
+    logger.debug(`Fetching script from: ${task.script}`);
     const scriptFile = await governify.httpClient({
       url: task.script,
       method: 'GET',
@@ -87,8 +91,8 @@ async function runTask (task) {
     });
     return await runScript(scriptFile.data, task.config, task.id);
   } catch (err) {
-    console.error(err);
-    throw Error('Error obtaining: ' + URL);
+    logger.error(`Error obtaining script from ${task.script}: ${err.message}`);
+    throw new Error(`Error obtaining script from ${task.script}: ${err.message}`);
   }
 }
 
@@ -96,12 +100,19 @@ async function runTask (task) {
 async function runScript (scriptText, config, scriptInfo) {
   let scriptResponse;
   try {
+    logger.debug(`Running script for task: ${scriptInfo}`);
     const module = requireFromString(scriptText);
 
+    if (typeof module.main !== 'function') {
+      throw new Error('Script does not export a main function');
+    }
+
     scriptResponse = await module.main(config);
+    logger.debug(`Script executed successfully for task: ${scriptInfo}`);
   } catch (error) {
-    scriptResponse = 'Error running script: ' + JSON.stringify(scriptInfo) + '\n' + 'Script config: ' + JSON.stringify(config);
-    throw Error(scriptResponse);
+    const errorMessage = `Error running script for task ${scriptInfo}: ${error.message}`;
+    logger.error(`${errorMessage}\nScript config: ${JSON.stringify(config, null, 2)}`);
+    throw new Error(errorMessage);
   }
   return scriptResponse;
 }
