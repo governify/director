@@ -29,7 +29,7 @@ jobs:
 
     steps:
     - name: Checkout repository ⬇️
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Node.js ${{ matrix.node-version }} 📦🛠️
       uses: actions/setup-node@v4
@@ -53,7 +53,7 @@ jobs:
       matrix:
         node-version: [22.x]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -88,7 +88,7 @@ jobs:
     
     steps:
       - name: Checkout ⬇️
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.1
         with:
           show-progress: false
 
