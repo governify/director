@@ -1,10 +1,19 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Task list
+  title: Task Management API
   description: >-
-    This is an OpenAPI Specification created by oas-wizard
-    (https://github.com/pafmon/oas-wizard)  
+    RESTful API for scheduled task management. Allows creating, querying, 
+    executing and managing the state of tasks with JavaScript scripts, including 
+    automatic scheduling, manual execution and execution state monitoring 
+    capabilities.
+    
+    Main features:
+    - Complete task management (CRUD)
+    - Manual and scheduled script execution
+    - State control (start/stop/switch)
+    - Visual status badges
+    - Script testing before task creation
   contact:
     name: PabloFM
     email: pablofm@us.es
@@ -15,243 +24,601 @@ info:
 paths:
   /api/v1/tasks:
     get:
-      description: Returns all tasks
+      summary: Get task list
+      description: >-
+        Returns a list of all tasks registered in the system.
+        Supports filtering through query parameters to search for
+        specific tasks based on their properties.
       operationId: gettasks
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: query
+          description: Filter by specific task ID
+          required: false
+          schema:
+            type: string
+            example: "01010101010101"
+        - name: running
+          in: query
+          description: Filter by execution status
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: script
+          in: query
+          description: Filter by script URL
+          required: false
+          schema:
+            type: string
+            format: uri
+            example: "http://localhost:3001/api/v1/scripts/860a7d93-b2f6-4aaa-b1d6-67dfc62d24ae"
       responses:
         '200':
-          description: Task List
+          description: Task list obtained successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/task'
-        default:
-          description: unexpected error
+                  $ref: '#/components/schemas/Task'
+              examples:
+                tasks_list:
+                  summary: Example task list
+                  value:
+                    - id: "01010101010101"
+                      script: "http://localhost:3001/api/v1/scripts/860a7d93-b2f6-4aaa-b1d6-67dfc62d24ae"
+                      running: true
+                      config:
+                        example: 123
+                      init: "2025-07-03T12:09:28.683Z"
+                      interval: 5000
+                      end: "2025-07-03T15:19:28.683Z"
+        '500':
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
     post:
-      description: Creates a new task
+      summary: Create new task
+      description: >-
+        Creates a new task in the system. If no ID is provided,
+        a UUID will be automatically generated. If a task with
+        the same characteristics already exists, a 400 error will be returned.
+        
+        **Script Requirements:**
+        - The script URL must point to a JavaScript file that exports a main function
+        - Format: `module.exports.main = function(config) { ... }`
+        - The main function receives the task configuration as parameter
       operationId: addTask
-      responses:
-        '201':
-          description: task created
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
+      tags:
+        - Tasks
       requestBody:
         x-name: task
+        description: Data for the task to be created
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/task'
-        description: Task to be created
-        required: true
+              $ref: '#/components/schemas/TaskInput'
+            examples:
+              new_task:
+                summary: Example new task
+                value:
+                  script: "http://localhost:3001/api/v1/scripts/example-script"
+                  config:
+                    apiKey: "your-api-key"
+                    retries: 3
+                  interval: 60000
+                  init: "2025-07-03T15:00:00.000Z"
+                  end: "2025-07-03T18:00:00.000Z"
+      responses:
+        '200':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Error in input data or task already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                task_exists:
+                  summary: Task already exists
+                  value:
+                    code: 400
+                    message: "Task already exists"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
   '/api/v1/tasks/{id}/status':
     get:
-      description: Returns a task status by id
+      summary: Get task execution status
+      description: >-
+        Queries the current execution status of a task, including
+        whether it is running and when the next scheduled execution will be.
+        Useful for monitoring and status dashboards.
       operationId: findtaskstatusByid
+      tags:
+        - Task Status
       parameters:
         - name: id
           in: path
-          description: id of task to fetch
+          description: Unique identifier of the task
           required: true
           schema:
             type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
       responses:
         '200':
-          description: Task returned
+          description: Task status obtained successfully
           content:
             application/json:
               schema:
-                type: object
-        default:
-          description: unexpected error
+                $ref: '#/components/schemas/TaskStatus'
+              examples:
+                running_task:
+                  summary: Running task
+                  value:
+                    id: "01010101010101"
+                    running: true
+                    nextExecution: "2025-07-03T15:00:00.000Z"
+                stopped_task:
+                  summary: Stopped task
+                  value:
+                    id: "01010101010101"
+                    running: false
+                    nextExecution: null
+        '404':
+          description: Task not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
   '/api/v1/tasks/{id}/badge':
     get:
-      description: Returns a task Badge by id
+      summary: Get task status visual badge
+      description: >-
+        Returns an SVG badge that visually represents the execution
+        status of the task. Useful for integrating into dashboards, repository
+        READMEs or web interfaces that require visual indicators.
       operationId: findTaskBadgeByid
+      tags:
+        - Task Status
       parameters:
         - name: id
           in: path
-          description: id of task to fetch
+          description: Unique identifier of the task
           required: true
           schema:
             type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
       responses:
         '200':
-          description: Task returned
+          description: Task status SVG badge
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+                description: SVG image showing the task status
+              examples:
+                running_badge:
+                  summary: Running task badge
+                  description: Green badge indicating that the task is running
+                stopped_badge:
+                  summary: Stopped task badge
+                  description: Red badge indicating that the task is stopped
+        '404':
+          description: Task not found
           content:
             application/json:
               schema:
-                type: object
-        default:
-          description: unexpected error
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
   '/api/v1/tasks/{id}/run':
     post:
-      description: Makes one execution of a task by id
+      summary: Execute task manually
+      description: >-
+        Executes a specific task immediately, regardless of its
+        automatic scheduling. Useful for testing, debugging or
+        on-demand executions. The task must exist in the system.
+        
+        **Execution Process:**
+        - Downloads the script from the specified URL
+        - Executes the exported main function with the task configuration
+        - Returns the execution result including output, timing and success status
       operationId: runTaskByid
+      tags:
+        - Task Execution
       parameters:
         - name: id
           in: path
-          description: id of task to run
+          description: Unique identifier of the task to execute
           required: true
           schema:
             type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
       responses:
         '200':
-          description: Task returned
+          description: Task executed successfully
           content:
             application/json:
               schema:
-                type: object
-        default:
-          description: unexpected error
+                $ref: '#/components/schemas/ExecutionResult'
+              examples:
+                successful_execution:
+                  summary: Successful execution
+                  value:
+                    success: true
+                    output: "Script executed successfully"
+                    executionTime: 1500
+                    timestamp: "2025-07-03T15:30:00.000Z"
+                failed_execution:
+                  summary: Failed execution
+                  value:
+                    success: false
+                    error: "Network timeout"
+                    executionTime: 5000
+                    timestamp: "2025-07-03T15:30:00.000Z"
+        '404':
+          description: Task not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Error during task execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
   '/api/v1/tasks/test':
     post:
-      description: Makes one execution of a task by the script JS.
+      summary: Test script execution
+      description: >-
+        Allows testing the execution of a JavaScript script before creating
+        a task. Useful for validating syntax, configuration and functionality
+        of the script without needing to create a permanent task in the system.
+        
+        **Script Requirements:**
+        - All scripts must export a main function: `module.exports.main = function(config) { ... }`
+        - The main function receives the configuration object as parameter
+        - The function can be synchronous or asynchronous (return Promise)
+        - The function should return a result object or throw an error
       operationId: runTaskTest
+      tags:
+        - Task Execution
       requestBody:
-        description: Script text and config
         x-name: testBody
+        description: Script data and configuration for testing
         required: true
-        content:
-          application/json:
-              schema:
-                type: object
-      responses:
-        '200':
-          description: Execution response returned
-          content:
-            application/json:
-              schema:
-                type: object
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
-  '/api/v1/tasks/{id}/status/{action}':
-    post:
-      description: Update a task status by id
-      operationId: updateTaskAction
-      parameters:
-        - name: id
-          in: path
-          description: id of task to fetch
-          required: true
-          schema:
-            type: string
-        - name: action
-          in: path
-          description: action to apply to the task
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Task returned
-          content:
-            application/json:
-              schema:
-                type: object
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
-  '/api/v1/tasks/{id}':
-    get:
-      description: Returns a task by id
-      operationId: findTaskByid
-      parameters:
-        - name: id
-          in: path
-          description: id of task to fetch
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Task returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/task'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
-    delete:
-      description: deletes a single task based on the id
-      operationId: deleteTask
-      parameters:
-        - name: id
-          in: path
-          description: ID of task to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        '202':
-          description: task deleted
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
-    put:
-      description: Update a task based on its id
-      operationId: updateTask
-      parameters:
-        - name: id
-          in: path
-          description: ID of task to put
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: task updated
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorModel'
-      requestBody:
-        x-name: task
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/task'
-        description: Task to be updated
+              $ref: '#/components/schemas/TestRequest'
+            examples:
+              simple_test:
+                summary: Simple script test
+                value:
+                  scriptText: |
+                    module.exports.main = function(config) {
+                      console.log('Hello World');
+                      return { status: 'success', message: 'Test completed' };
+                    };
+                  scriptConfig:
+                    timeout: 5000
+                    retries: 1
+              api_test:
+                summary: API script test
+                value:
+                  scriptText: |
+                    module.exports.main = async function(config) {
+                      const response = await fetch(config.apiUrl);
+                      const data = await response.json();
+                      return { status: 'success', data: data };
+                    };
+                  scriptConfig:
+                    apiUrl: "https://api.example.com/data"
+                    apiKey: "test-key"
+      responses:
+        '200':
+          description: Script executed successfully in test mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResult'
+              examples:
+                test_success:
+                  summary: Successful test
+                  value:
+                    success: true
+                    output: "Test completed successfully"
+                    executionTime: 850
+                    timestamp: "2025-07-03T15:45:00.000Z"
+        '400':
+          description: Error in script data or configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Error during test script execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  '/api/v1/tasks/{id}/status/{action}':
+    post:
+      summary: Control task execution status
+      description: >-
+        Changes the execution status of a task. Allows starting, stopping
+        or toggling the state of a task. Validates that the action is coherent
+        with the current state (cannot start an already started task).
+      operationId: updateTaskAction
+      tags:
+        - Task Status
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the task
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
+        - name: action
+          in: path
+          description: Action to perform on the task status
+          required: true
+          schema:
+            type: string
+            enum: [start, stop, switch]
+            example: "start"
+          examples:
+            start:
+              summary: Start task
+              value: "start"
+            stop:
+              summary: Stop task
+              value: "stop"
+            switch:
+              summary: Toggle status
+              value: "switch"
+      responses:
+        '200':
+          description: Task status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid action or inconsistent with current status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                invalid_action:
+                  summary: Action not permitted
+                  value:
+                    code: 400
+                    message: "Action not permitted"
+                already_running:
+                  summary: Task already running
+                  value:
+                    code: 400
+                    message: "Task already running"
+                not_running:
+                  summary: Task is not running
+                  value:
+                    code: 400
+                    message: "Task is not running"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  '/api/v1/tasks/{id}':
+    get:
+      summary: Get task by ID
+      description: >-
+        Retrieves a specific task based on its unique identifier.
+        Useful for getting complete task details before
+        modifying it or verifying its configuration.
+      operationId: findTaskByid
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the task
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
+      responses:
+        '200':
+          description: Task found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                not_found:
+                  summary: Task not found
+                  value:
+                    code: 404
+                    message: "Not Found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      summary: Update complete task
+      description: >-
+        Updates all fields of an existing task. The ID in the request
+        body must match the ID in the URL. The operation is
+        atomic and verifies the previous existence of the task.
+      operationId: updateTask
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the task to update
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
+      requestBody:
+        x-name: task
+        description: Complete data of the updated task
         required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+            examples:
+              update_task:
+                summary: Task update
+                value:
+                  id: "01010101010101"
+                  script: "http://localhost:3001/api/v1/scripts/updated-script"
+                  running: false
+                  config:
+                    apiKey: "new-api-key"
+                    timeout: 30000
+                  interval: 120000
+                  init: "2025-07-03T16:00:00.000Z"
+                  end: "2025-07-03T20:00:00.000Z"
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "Task updated successfully"
+                  task:
+                    $ref: '#/components/schemas/Task'
+        '400':
+          description: Error in input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                id_mismatch:
+                  summary: ID mismatch
+                  value:
+                    code: 400
+                    message: "Task ID in body must match the ID in URL"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    delete:
+      summary: Delete task
+      description: >-
+        Permanently deletes a task from the system. This operation
+        is not reversible and also stops execution if the task
+        was active.
+      operationId: deleteTask
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier of the task to delete
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9\-]+$'
+            example: "01010101010101"
+      responses:
+        '202':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 202
+                  message:
+                    type: string
+                    example: "Deleted"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal server error when deleting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
 components:
   schemas:
-    errorModel:
+    ErrorModel:
       type: object
       required:
         - code
@@ -260,30 +627,225 @@ components:
         code:
           type: integer
           format: int32
+          description: HTTP error code
+          example: 404
         message:
           type: string
-    task:
+          description: Error description
+          example: "Not Found"
+      example:
+        code: 404
+        message: "Task not found"
+
+    Task:
       type: object
+      description: Complete representation of a scheduled task
+      required:
+        - id
+        - script
+        - config
+        - interval
       properties:
         id:
           type: string
-          minLength: 1
+          description: Unique identifier of the task
+          pattern: '^[a-zA-Z0-9\-]+$'
+          example: "01010101010101"
         script:
           type: string
-          minLength: 1
+          description: URL of the JavaScript script to execute (must export a main function)
+          format: uri
+          example: "http://localhost:3001/api/v1/scripts/860a7d93-b2f6-4aaa-b1d6-67dfc62d24ae"
         running:
           type: boolean
+          description: Current execution status of the task
+          example: true
         config:
           type: object
+          description: Specific configuration for the script
+          additionalProperties: true
+          example:
+            apiKey: "your-api-key"
+            timeout: 30000
+            retries: 3
         init:
           type: string
-          properties: {}
+          format: date-time
+          description: Start date and time of the scheduling
+          example: "2025-07-03T12:09:28.683Z"
         interval:
           type: number
+          description: Execution interval in milliseconds
+          minimum: 1000
+          example: 5000
         end:
           type: string
-          properties: {}
+          format: date-time
+          description: End date and time of the scheduling
+          example: "2025-07-03T15:19:28.683Z"
+      example:
+        id: "01010101010101"
+        script: "http://localhost:3001/api/v1/scripts/860a7d93-b2f6-4aaa-b1d6-67dfc62d24ae"
+        running: true
+        config:
+          example: 123
+        init: "2025-07-03T12:09:28.683Z"
+        interval: 5000
+        end: "2025-07-03T15:19:28.683Z"
+
+    TaskInput:
+      type: object
+      description: Data needed to create a new task
       required:
         - script
         - config
         - interval
+      properties:
+        id:
+          type: string
+          description: Optional unique identifier (generated automatically if not provided)
+          pattern: '^[a-zA-Z0-9\-]+$'
+          example: "custom-task-id"
+        script:
+          type: string
+          description: URL of the JavaScript script to execute (must export a main function)
+          format: uri
+          example: "http://localhost:3001/api/v1/scripts/example-script"
+        config:
+          type: object
+          description: Specific configuration for the script
+          additionalProperties: true
+          example:
+            apiKey: "your-api-key"
+            retries: 3
+        init:
+          type: string
+          format: date-time
+          description: Start date and time of the scheduling (optional)
+          example: "2025-07-03T15:00:00.000Z"
+        interval:
+          type: number
+          description: Execution interval in milliseconds
+          minimum: 1000
+          example: 60000
+        end:
+          type: string
+          format: date-time
+          description: End date and time of the scheduling (optional)
+          example: "2025-07-03T18:00:00.000Z"
+
+    TaskStatus:
+      type: object
+      description: Current execution status of a task
+      required:
+        - id
+        - running
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the task
+          example: "01010101010101"
+        running:
+          type: boolean
+          description: Indicates if the task is currently running
+          example: true
+        nextExecution:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date and time of the next scheduled execution
+          example: "2025-07-03T15:00:00.000Z"
+      example:
+        id: "01010101010101"
+        running: true
+        nextExecution: "2025-07-03T15:00:00.000Z"
+
+    ExecutionResult:
+      type: object
+      description: Result of a task or test script execution
+      required:
+        - success
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the execution was successful
+          example: true
+        output:
+          type: string
+          description: Output or result of the execution (if successful)
+          example: "Script executed successfully"
+        error:
+          type: string
+          description: Error message (if execution failed)
+          example: "Network timeout"
+        executionTime:
+          type: number
+          description: Execution time in milliseconds
+          example: 1500
+        timestamp:
+          type: string
+          format: date-time
+          description: Date and time of the execution
+          example: "2025-07-03T15:30:00.000Z"
+        data:
+          type: object
+          description: Additional data returned by the script
+          additionalProperties: true
+      example:
+        success: true
+        output: "Script executed successfully"
+        executionTime: 1500
+        timestamp: "2025-07-03T15:30:00.000Z"
+
+    TestRequest:
+      type: object
+      description: Data for testing script execution
+      required:
+        - scriptText
+        - scriptConfig
+      properties:
+        scriptText:
+          type: string
+          description: JavaScript code of the script to test (must include module.exports.main function)
+          example: |
+            module.exports.main = function(config) {
+              console.log('Hello World');
+              return { status: 'success', message: 'Test completed' };
+            };
+        scriptConfig:
+          type: object
+          description: Configuration for the test script
+          additionalProperties: true
+          example:
+            timeout: 5000
+            retries: 1
+      example:
+        scriptText: |
+          module.exports.main = async function(config) {
+            const response = await fetch(config.apiUrl);
+            return { status: 'success', data: await response.json() };
+          };
+        scriptConfig:
+          apiUrl: "https://api.example.com/data"
+          timeout: 10000
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key for authentication
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+tags:
+  - name: Tasks
+    description: CRUD operations for task management
+  - name: Task Status
+    description: Operations to query and control task status
+  - name: Task Execution
+    description: Operations to execute tasks and test scripts
