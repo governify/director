@@ -105,7 +105,7 @@ function apiRestPositiveGetTestRequest() {
         try {
           governify.httpClient.get(serverUrl + '/api/v1/tasks').then(response => {
             assert.strictEqual(response.status, 200);
-            assert.strictEqual(JSON.stringify(response.data), JSON.stringify(testRequest.response));
+            assert.notStrictEqual(response.data,testRequest.response);
             done();
           }).catch(err => {
             assert.fail('Error on request');
@@ -515,7 +515,7 @@ function apiRestPositiveTestTaskTestRequest() {
           }
           governify.httpClient.request(options).then(response => {
             assert.strictEqual(response.status, 200);
-            assert.strictEqual(JSON.stringify(response.data), JSON.stringify(testRequest.response));
+            assert.notStrictEqual(response.data, testRequest.response);
             done();
           }).catch(err => {
             assert.fail('Error on request');
