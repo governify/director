@@ -23,7 +23,7 @@
   "private": true,
   "dependencies": {
     "@sendgrid/mail": "8.1.6",
-    "archiver": "7.0.1",
+    "archiver": "8.0.0",
     "body-parser": "1.20.6",
     "cors": "2.8.5",
     "express": "4.22.0",
